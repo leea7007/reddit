@@ -15,7 +15,7 @@ export default class User extends BaseEntity {
 
   @Index()
   @Length(3, 32, { message: "name must be longer than 3 letters" })
-  @Column()
+  @Column({ unique: true })
   username!: string;
 
   @Column()

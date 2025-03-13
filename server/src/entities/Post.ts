@@ -7,16 +7,17 @@ import {
   JoinColumn,
   BeforeInsert,
 } from "typeorm";
-import BaseEntity from './BaseEntity'
+import BaseEntity from "./BaseEntity";
 import User from "./User";
 import Sub from "./Sub";
 import { OneToMany } from "typeorm";
 import Vote from "./Vote";
 import { Exclude, Expose } from "class-transformer";
-import { makeid, slugify } from "../utils/helpers";
+import { makeId, slugify } from "../utils/helpers";
+import Comment from "./Comment";
 
+@Entity("posts")
 export default class Post extends BaseEntity {
-
   @Index()
   @Column()
   identifier!: string;
@@ -24,7 +25,7 @@ export default class Post extends BaseEntity {
   @Column()
   title!: string;
 
-  @Column({nullable: true, type: "text"})
+  @Column({ nullable: true, type: "text" })
   body!: string;
 
   @Column()
@@ -33,12 +34,15 @@ export default class Post extends BaseEntity {
   @Column()
   username!: string;
 
+  @Column()
+  slug!: string;
+
   @ManyToOne(() => User, (user) => user.posts)
-  @JoinColumn({name: "username", referencedColumnName: "username"})
+  @JoinColumn({ name: "username", referencedColumnName: "username" })
   user!: User;
 
   @ManyToOne(() => Sub, (sub) => sub.posts)
-  @JoinColumn({name: "subName", referencedColumnName: "name"})
+  @JoinColumn({ name: "subName", referencedColumnName: "name" })
   sub!: Sub;
 
   @Exclude()
@@ -49,23 +53,23 @@ export default class Post extends BaseEntity {
   @OneToMany(() => Vote, (vote) => vote.post)
   votes!: Vote[];
 
-  @Expose() get url(): string{
-    return `/r/${this.subName}/${this.identifier}/${this.slug}`
+  @Expose() get url(): string {
+    return `/r/${this.subName}/${this.identifier}/${this.slug}`;
   }
 
   @Expose() get commentCount(): number {
     return this.comments?.length;
   }
 
-  @Expose() get voteScore(): number{
-    return this.votes?.reduce((memo, curt) => memo + (curt.value || 0), 0)
+  @Expose() get voteScore(): number {
+    return this.votes?.reduce((memo, curt) => memo + (curt.value || 0), 0);
   }
 
   protected userVote!: number;
 
-  setUserVote(user:User){
-    const index=this.votes?.findIndex(v => v.username === user.username);
-    this.userVote = index > -1 ? this.votes[index].value : 0
+  setUserVote(user: User) {
+    const index = this.votes?.findIndex((v) => v.username === user.username);
+    this.userVote = index > -1 ? this.votes[index].value : 0;
   }
 
   @BeforeInsert()

@@ -1,3 +1,5 @@
+// data source and all connection to the database
+
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 // import { User } from "./entities/User";
