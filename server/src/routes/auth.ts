@@ -5,8 +5,17 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import cookie from "cookie";
 import dotenv from "dotenv";
+import userMiddleware from "../middlewares/user";
+import authMiddleware from "../middlewares/auth";
 
 dotenv.config();
+
+// me function is for checking if the user is authenticated or not
+const me = async (req: Request, res: Response) => {
+  res.json(res.locals.user);
+  return;
+};
+
 const register = async (req: Request, res: Response) => {
   const { email, username, password } = req.body;
   try {
@@ -79,7 +88,7 @@ const login = async (req: Request, res: Response) => {
     //   // sameSite: "none", // for https
     // });
 
-    res.cookie("Set-Cookie", token, {
+    res.cookie("token", token, {
       httpOnly: true, // 클라이언트에서 쿠키 읽기 방지
       maxAge: 60 * 60 * 24 * 7, // 1주일 (밀리초 단위)
       secure: process.env.NODE_ENV === "production", // HTTPS에서만 작동 (프로덕션 환경)
@@ -88,8 +97,6 @@ const login = async (req: Request, res: Response) => {
     res.json({ user, token });
     return;
   } catch (err) {
-    console.log(err);
-    console.log(process.env.JWT_SECRET);
     res.status(500).json(err);
     return;
   }
@@ -101,5 +108,6 @@ const login = async (req: Request, res: Response) => {
 const router = Router();
 router.post("/register", register);
 router.post("/login", login);
+router.post("/me", userMiddleware, authMiddleware, me);
 
 export default router;
