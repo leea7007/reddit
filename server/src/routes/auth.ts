@@ -102,12 +102,28 @@ const login = async (req: Request, res: Response) => {
   }
 };
 
+const logout = async (req: Request, res: Response) => {
+  res.clearCookie("token");
+  res.json({ message: "Logged out" });
+
+  //   res.set(
+  //     "Set-Cookie",
+  //     cookie.serialize("token", "", {
+  //       httpOnly: true,
+  //       secure: process.env.NODE_ENV === "production",
+  //       sameSite: "none",
+  //       expires: new Date(0),
+  //     }
+  //   ))
+};
+
 // router.post("/register", (req, res) => {
 //   res.send("Register route");
 // })
 const router = Router();
 router.post("/register", register);
 router.post("/login", login);
-router.post("/me", userMiddleware, authMiddleware, me);
+router.get("/me", userMiddleware, authMiddleware, me);
+router.post("/logout", userMiddleware, authMiddleware, logout);
 
 export default router;

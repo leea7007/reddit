@@ -16,6 +16,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     const user = await User.findOneBy({ username });
     res.locals.user = user;
     next();
+    return;
   } catch (error) {
     console.log(error);
     res.status(400).json({ error: "Unauthenticated" });
